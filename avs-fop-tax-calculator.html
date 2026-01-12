@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Розрахунок податків для ФОП</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; padding: 16px; }
+    .card { max-width: 420px; background: #f3efe9; border-radius: 16px; padding: 18px; }
+    h3 { margin: 0 0 12px; font-size: 24px; }
+    label { display:block; margin: 10px 0 6px; font-weight: 600; }
+    select, input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #cfcfcf; font-size: 16px; }
+    button { width: 100%; margin-top: 14px; padding: 12px 14px; border-radius: 14px; border: 0; cursor: pointer; font-size: 18px; font-weight: 700; background: #1f2a44; color: #fff; }
+    #result { margin-top: 14px; line-height: 1.5; }
+    .reset { margin-top: 10px; cursor: pointer; color: #1f2a44; font-weight: 600; user-select:none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h3>Розрахунок податків для ФОП</h3>
+
+    <label for="group">Оберіть групу:</label>
+    <select id="group">
+      <option value="1">ФОП 1 група</option>
+      <option value="2">ФОП 2 група</option>
+      <option value="3-yes">ФОП 3 група (платник ПДВ)</option>
+      <option value="3-no">ФОП 3 група (не платник ПДВ)</option>
+    </select>
+
+    <label id="period-label" for="period">Кількість місяців:</label>
+    <select id="period"></select>
+
+    <div id="income-wrap" style="display:none;">
+      <label id="income-label" for="income">Дохід (грн):</label>
+      <input id="income" type="number" min="0" step="0.01" value="0" />
+    </div>
+
+    <button type="button" id="calc">РОЗРАХУВАТИ</button>
+
+    <div id="result" aria-live="polite"></div>
+    <div id="reset" class="reset" style="display:none;">🔄 Скинути результати</div>
+  </div>
+
+  <script>
+    const group = document.getElementById('group');
+    const period = document.getElementById('period');
+    const periodLabel = document.getElementById('period-label');
+    const incomeWrap = document.getElementById('income-wrap');
+    const incomeLabel = document.getElementById('income-label');
+    const income = document.getElementById('income');
+    const result = document.getElementById('result');
+    const reset = document.getElementById('reset');
+    const MAX_INCOME = 9336000;
+
+    function format(num) {
+      return num.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "\u00A0грн.";
+    }
+
+    function updatePeriods() {
+      period.innerHTML = '';
+      const g = group.value;
+
+      if (g === '1' || g === '2') {
+        periodLabel.textContent = 'Кількість місяців:';
+        for (let i=1; i<=12; i++) {
+          const opt = document.createElement('option');
+          opt.value = i; opt.textContent = i;
+          period.appendChild(opt);
+        }
+      } else {
+        periodLabel.textContent = 'Період:';
+        [
+          {v:3,t:'Квартал'},
+          {v:6,t:'Півріччя'},
+          {v:9,t:'9 місяців'},
+          {v:12,t:'Рік'},
+        ].forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.v; opt.textContent = p.t;
+          period.appendChild(opt);
+        });
+      }
+
+      incomeWrap.style.display = g.startsWith('3') ? 'block' : 'none';
+      incomeLabel.textContent = (g === '3-yes') ? 'Дохід без ПДВ (грн):' : 'Дохід (грн):';
+
+      result.innerHTML = '';
+      reset.style.display = 'none';
+    }
+
+    function calculate() {
+      const g = group.value;
+      const m = +period.value;
+      let inc = +income.value || 0;
+      if (inc < 0) inc = 0;
+      if (inc > MAX_INCOME) inc = MAX_INCOME;
+
+      let single = 0, military = 0, esv = 0;
+
+      if (g === '1') {
+        single = 302.8 * m;
+        military = 800 * m;
+        esv = 1760 * m;
+      } else if (g === '2') {
+        single = 1600 * m;
+        military = 800 * m;
+        esv = 1760 * m;
+      } else {
+        single = inc * (g === '3-yes' ? 0.03 : 0.05);
+        military = inc * 0.01;
+        esv = 1760 * m;
+      }
+
+      const total = single + military + esv;
+      const net = g.startsWith('3') ? (inc - total) : null;
+
+      result.innerHTML =
+        `Єдиний податок: ${format(single)}<br>` +
+        `Військовий збір: ${format(military)}<br>` +
+        `ЄСВ: ${format(esv)}<br>` +
+        `<strong>Загальний податок: ${format(total)}</strong>` +
+        (net !== null ? `<br><strong>Чистий дохід: ${format(net)}</strong>` : '');
+
+      reset.style.display = 'block';
+    }
+
+    group.addEventListener('change', updatePeriods);
+    document.getElementById('calc').addEventListener('click', calculate);
+    reset.addEventListener('click', () => {
+      result.innerHTML = '';
+      reset.style.display = 'none';
+      income.value = 0;
+    });
+
+    updatePeriods();
+  </script>
+</body>
+</html>
