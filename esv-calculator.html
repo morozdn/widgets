@@ -23,7 +23,8 @@
         <label class="block font-medium mb-1" for="category">Категорія працівника:</label>
         <select id="category" class="w-full p-2 border rounded">
           <option value="main">Основний працівник (22%)</option>
-          <option value="co">Сумісник (22%)</option>
+          <option value="co-external">Сумісник зовнішній (22%)</option>
+          <option value="co-internal">Сумісник внутрішній (22%)</option>
           <option value="disabled">Працівник‑інвалід (8.41%)</option>
           <option value="org-inv-53">Інвалід УТОГ/УТОС (5.3%)</option>
           <option value="org-inv-55">Інвалід громадської орг. (5.5%)</option>
@@ -45,37 +46,47 @@
   </div>
 
   <script>
+    const MIN_SALARY = 8000;
+
     document.getElementById("esvForm").addEventListener("submit", function(e) {
       e.preventDefault();
 
       const salary = parseFloat(document.getElementById("salary").value);
       const category = document.getElementById("category").value;
       let rate = 0;
+      let base = salary;
 
-      // Определяем ставку по категории
       switch (category) {
         case "main":
-        case "co":
           rate = 22;
+          if (salary < MIN_SALARY) base = MIN_SALARY;
+          break;
+        case "co-external":
+          rate = 22;
+          base = salary; // No adjustment
+          break;
+        case "co-internal":
+          rate = 22;
+          if (salary < MIN_SALARY) base = MIN_SALARY;
           break;
         case "disabled":
           rate = 8.41;
+          base = salary;
           break;
         case "org-inv-53":
           rate = 5.3;
+          base = salary;
           break;
         case "org-inv-55":
           rate = 5.5;
+          base = salary;
           break;
       }
 
-      // Расчёт ЕСВ
-      const esvSum = salary * (rate / 100);
+      const esvSum = base * (rate / 100);
 
-      // Вывод
       document.getElementById("rateText").textContent = rate + "%";
       document.getElementById("esvAmount").textContent = esvSum.toFixed(2);
-
       document.getElementById("result").classList.remove("hidden");
     });
   </script>
