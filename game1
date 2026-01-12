@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Бухгалтерський детектор помилок</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+  <div class="max-w-xl w-full bg-white p-6 rounded-xl shadow-md text-center">
+    <h1 class="text-2xl font-bold mb-4">🎯 Бухгалтерський детектор помилок</h1>
+    <div id="game">
+      <div id="question" class="text-lg font-medium mb-4"></div>
+      <div class="flex justify-center gap-4 mb-6">
+        <button onclick="answer(true)" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">✅ Правильно</button>
+        <button onclick="answer(false)" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">❌ Є помилка</button>
+      </div>
+      <div id="progress" class="text-sm text-gray-500 mb-2"></div>
+    </div>
+    <div id="result" class="hidden">
+      <p class="text-xl font-semibold mb-2">Результат:</p>
+      <p id="scoreText" class="text-lg font-bold mb-4"></p>
+      <button onclick="startGame()" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">🔁 Грати ще</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { text: "ФОП 3 групи отримав дохід 2 500 000 грн у 2025 році. Чи правильний розрахунок податку: 125 000 грн?", correct: true },
+      { text: "Підприємець на 2 групі ЄП має 5 найманих працівників. Це дозволено законодавством?", correct: true },
+      { text: "ФОП 1 групи має платити ЄСВ навіть якщо не має доходу.", correct: true },
+      { text: "Мінімальний ЄСВ у 2026 році складає 1320 грн.", correct: false },
+      { text: "ПДВ-реєстрація обов'язкова з доходу 3 млн грн на рік.", correct: false },
+      { text: "Витрати ФОП 3 групи з 5% ЄП враховуються при оподаткуванні.", correct: false },
+      { text: "Зарплата працівника менше МЗП — ЄСВ нараховується з фактичної зарплати.", correct: false },
+      { text: "Договір ЦПХ вимагає сплати ЄСВ.", correct: true },
+      { text: "РРО не потрібно для продажу товарів в інтернеті на 3 групі.", correct: false },
+      { text: "Юридична особа на загальній системі може не бути платником ПДВ.", correct: true },
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function startGame() {
+      current = 0;
+      score = 0;
+      document.getElementById("result").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (current >= questions.length) {
+        finishGame();
+        return;
+      }
+      const q = questions[current];
+      document.getElementById("question").textContent = q.text;
+      document.getElementById("progress").textContent = `Питання ${current + 1} з ${questions.length}`;
+    }
+
+    function answer(isCorrect) {
+      if (questions[current].correct === isCorrect) {
+        score++;
+      }
+      current++;
+      showQuestion();
+    }
+
+    function finishGame() {
+      document.getElementById("game").classList.add("hidden");
+      document.getElementById("result").classList.remove("hidden");
+      let title = "Пора освіжити знання 🙈";
+      if (score >= 5 && score <= 7) title = "Бухгалтер-практик 👩‍💼";
+      if (score >= 8) title = "Податковий ніндзя 😎";
+      document.getElementById("scoreText").textContent = `${score}/10 — ${title}`;
+    }
+
+    startGame();
+  </script>
+</body>
+</html>
