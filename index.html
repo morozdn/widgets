@@ -21,7 +21,8 @@
         <button onclick="answer(true)" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">✅ Правильно</button>
         <button onclick="answer(false)" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">❌ Є помилка</button>
       </div>
-      <div id="progress" class="text-sm text-gray-500 mb-2"></div>
+      <div id="progress" class="text-sm text-gray-500 mb-1"></div>
+      <div id="timer" class="text-red-600 font-semibold"></div>
     </div>
 
     <div id="result" class="hidden">
@@ -47,6 +48,8 @@
 
     let current = 0;
     let score = 0;
+    let timer;
+    let timeLeft = 30;
 
     function startGame() {
       current = 0;
@@ -58,6 +61,7 @@
     }
 
     function showQuestion() {
+      clearInterval(timer);
       if (current >= questions.length) {
         finishGame();
         return;
@@ -65,9 +69,11 @@
       const q = questions[current];
       document.getElementById("question").textContent = q.text;
       document.getElementById("progress").textContent = `Питання ${current + 1} з ${questions.length}`;
+      startTimer();
     }
 
     function answer(isCorrect) {
+      clearInterval(timer);
       if (questions[current].correct === isCorrect) {
         score++;
       }
@@ -76,6 +82,7 @@
     }
 
     function finishGame() {
+      clearInterval(timer);
       document.getElementById("game").classList.add("hidden");
       document.getElementById("result").classList.remove("hidden");
       document.getElementById("start-screen").classList.remove("hidden");
@@ -83,6 +90,20 @@
       if (score >= 5 && score <= 7) title = "Бухгалтер-практик 👩‍💼";
       if (score >= 8) title = "Податковий ніндзя 😎";
       document.getElementById("scoreText").textContent = `${score}/10 — ${title}`;
+    }
+
+    function startTimer() {
+      timeLeft = 30;
+      document.getElementById("timer").textContent = `⏱ Залишилось: ${timeLeft} сек.`;
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = `⏱ Залишилось: ${timeLeft} сек.`;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          current++;
+          showQuestion();
+        }
+      }, 1000);
     }
   </script>
 </body>
