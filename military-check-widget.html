@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Плани перевірок військового обліку 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-4">
+  <div class="max-w-3xl mx-auto bg-white shadow rounded-xl p-6">
+    <h2 class="text-xl font-bold mb-4 text-center">Пошук Планів перевірок стану військового обліку в 2026 році</h2>
+
+    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+      <div>
+        <label for="region" class="block font-medium mb-1">Оберіть область:</label>
+        <select id="region" class="w-full p-2 border rounded">
+          <option value="">-- Не вибрано --</option>
+          <option value="kyiv">Київська область</option>
+          <option value="khmelnytskyi">Хмельницька область</option>
+        </select>
+      </div>
+
+      <div id="city-select" class="hidden">
+        <label for="city" class="block font-medium mb-1">Оберіть місто:</label>
+        <select id="city" class="w-full p-2 border rounded"></select>
+      </div>
+    </div>
+
+    <div id="table-wrapper" class="hidden">
+      <table class="w-full table-auto border border-gray-300">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border p-2 text-left">Орган влади</th>
+            <th class="border p-2 text-left">План перевірок</th>
+            <th class="border p-2 text-left">Документ</th>
+          </tr>
+        </thead>
+        <tbody id="results"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      kyiv: {
+        "Київ": [
+          {
+            authority: { text: "Тест 1", url: "https://kadroland.com" },
+            plan: { text: "План 1", url: "https://7eminar.ua" },
+            document: { text: "Документ 1", url: "https://minio.kyivcity.gov.ua/kyivcity/sites/10/2025/12/26/1259.pdf" }
+          }
+        ],
+        "Бориспіль": [...this.Київ],
+        "Бровари": [...this.Київ]
+      },
+      khmelnytskyi: {
+        "Славута": [...this.kyiv.Київ],
+        "Нетішин": [...this.kyiv.Київ],
+        "Острог": [...this.kyiv.Київ]
+      }
+    };
+
+    const regionSelect = document.getElementById("region");
+    const citySelectWrapper = document.getElementById("city-select");
+    const citySelect = document.getElementById("city");
+    const tableWrapper = document.getElementById("table-wrapper");
+    const resultsBody = document.getElementById("results");
+
+    regionSelect.addEventListener("change", () => {
+      const region = regionSelect.value;
+      citySelect.innerHTML = "";
+      resultsBody.innerHTML = "";
+      tableWrapper.classList.add("hidden");
+
+      if (data[region]) {
+        citySelectWrapper.classList.remove("hidden");
+        citySelect.innerHTML = '<option value="">-- Не вибрано --</option>';
+        Object.keys(data[region]).forEach(city => {
+          citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+        });
+      } else {
+        citySelectWrapper.classList.add("hidden");
+      }
+    });
+
+    citySelect.addEventListener("change", () => {
+      const region = regionSelect.value;
+      const city = citySelect.value;
+      resultsBody.innerHTML = "";
+
+      if (data[region] && data[region][city]) {
+        tableWrapper.classList.remove("hidden");
+        data[region][city].forEach(entry => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td class="border p-2"><a href="${entry.authority.url}" class="text-blue-600 underline" target="_blank">${entry.authority.text}</a></td>
+            <td class="border p-2"><a href="${entry.plan.url}" class="text-blue-600 underline" target="_blank">${entry.plan.text}</a></td>
+            <td class="border p-2"><a href="${entry.document.url}" class="text-blue-600 underline" target="_blank">${entry.document.text}</a></td>
+          `;
+          resultsBody.appendChild(row);
+        });
+      } else {
+        tableWrapper.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
