@@ -3,64 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Калькулятор ЄСВ</title>
+  <title>Калькулятор ЄСВ (Україна)</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
-  <div class="max-w-xl w-full bg-white p-6 rounded-xl shadow-md">
-    <h1 class="text-2xl font-bold mb-4">Калькулятор ЄСВ (Україна)</h1>
+<body class="bg-gray-50 flex items-center justify-center p-6 min-h-screen">
+
+  <div class="bg-white p-6 rounded-xl shadow-md max-w-xl w-full">
+    <h1 class="text-2xl font-bold mb-4 text-center">Калькулятор ЄСВ</h1>
 
     <form id="esvForm" class="space-y-4">
+      <!-- Зарплата -->
       <div>
-        <label class="block font-medium mb-1" for="salary">Сума нарахованої зарплати (грн):</label>
-        <input type="number" id="salary" class="w-full p-2 border rounded" required min="0" step="0.01" />
+        <label class="block font-medium mb-1" for="salary">Заробітна плата (грн):</label>
+        <input type="number" id="salary" class="w-full p-2 border rounded" required step="0.01" min="0" />
       </div>
 
+      <!-- Категория -->
       <div>
         <label class="block font-medium mb-1" for="category">Категорія працівника:</label>
         <select id="category" class="w-full p-2 border rounded">
-          <option value="main">Основний працівник</option>
-          <option value="co">Сумісник</option>
-          <option value="disabled">Працівник-інвалід</option>
+          <option value="main">Основний працівник (22%)</option>
+          <option value="co">Сумісник (22%)</option>
+          <option value="disabled">Працівник‑інвалід (8.41%)</option>
+          <option value="org-inv-53">Інвалід УТОГ/УТОС (5.3%)</option>
+          <option value="org-inv-55">Інвалід громадської орг. (5.5%)</option>
         </select>
       </div>
 
+      <!-- Кнопка -->
       <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
         Розрахувати ЄСВ
       </button>
     </form>
 
-    <div id="result" class="mt-6 hidden">
+    <!-- Результат -->
+    <div id="result" class="mt-6 hidden bg-green-50 p-4 rounded">
       <h2 class="text-xl font-semibold mb-2">Результати</h2>
-      <p><strong>Ставка ЄСВ:</strong> <span id="rate"></span>%</p>
-      <p><strong>Сума ЄСВ:</strong> <span id="contribution"></span> грн</p>
+      <p><strong>Ставка ЄСВ:</strong> <span id="rateText"></span></p>
+      <p><strong>Сума ЄСВ:</strong> <span id="esvAmount"></span> грн</p>
     </div>
   </div>
 
   <script>
-    const MIN_SALARY = 6000;
-
-    document.getElementById("esvForm").addEventListener("submit", function (e) {
+    document.getElementById("esvForm").addEventListener("submit", function(e) {
       e.preventDefault();
 
       const salary = parseFloat(document.getElementById("salary").value);
       const category = document.getElementById("category").value;
+      let rate = 0;
 
-      let rate = 22;
-      if (category === "disabled") rate = 8.41;
-
-      let contribution = 0;
-
-      if (category === "main" && salary < MIN_SALARY) {
-        contribution = MIN_SALARY * (rate / 100);
-      } else {
-        contribution = salary * (rate / 100);
+      // Определяем ставку по категории
+      switch (category) {
+        case "main":
+        case "co":
+          rate = 22;
+          break;
+        case "disabled":
+          rate = 8.41;
+          break;
+        case "org-inv-53":
+          rate = 5.3;
+          break;
+        case "org-inv-55":
+          rate = 5.5;
+          break;
       }
 
-      document.getElementById("rate").textContent = rate;
-      document.getElementById("contribution").textContent = contribution.toFixed(2);
+      // Расчёт ЕСВ
+      const esvSum = salary * (rate / 100);
+
+      // Вывод
+      document.getElementById("rateText").textContent = rate + "%";
+      document.getElementById("esvAmount").textContent = esvSum.toFixed(2);
+
       document.getElementById("result").classList.remove("hidden");
     });
   </script>
+
 </body>
 </html>
