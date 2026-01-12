@@ -41,22 +41,24 @@
   </div>
 
   <script>
+    const sharedData = [
+      {
+        authority: { text: "Тест 1", url: "https://kadroland.com" },
+        plan: { text: "План 1", url: "https://7eminar.ua" },
+        document: { text: "Документ 1", url: "https://minio.kyivcity.gov.ua/kyivcity/sites/10/2025/12/26/1259.pdf" }
+      }
+    ];
+
     const data = {
       kyiv: {
-        "Київ": [
-          {
-            authority: { text: "Тест 1", url: "https://kadroland.com" },
-            plan: { text: "План 1", url: "https://7eminar.ua" },
-            document: { text: "Документ 1", url: "https://minio.kyivcity.gov.ua/kyivcity/sites/10/2025/12/26/1259.pdf" }
-          }
-        ],
-        "Бориспіль": [...this.Київ],
-        "Бровари": [...this.Київ]
+        "Київ": sharedData,
+        "Бориспіль": sharedData,
+        "Бровари": sharedData
       },
       khmelnytskyi: {
-        "Славута": [...this.kyiv.Київ],
-        "Нетішин": [...this.kyiv.Київ],
-        "Острог": [...this.kyiv.Київ]
+        "Славута": sharedData,
+        "Нетішин": sharedData,
+        "Острог": sharedData
       }
     };
 
@@ -76,7 +78,10 @@
         citySelectWrapper.classList.remove("hidden");
         citySelect.innerHTML = '<option value="">-- Не вибрано --</option>';
         Object.keys(data[region]).forEach(city => {
-          citySelect.innerHTML += `<option value="${city}">${city}</option>`;
+          const opt = document.createElement("option");
+          opt.value = city;
+          opt.textContent = city;
+          citySelect.appendChild(opt);
         });
       } else {
         citySelectWrapper.classList.add("hidden");
